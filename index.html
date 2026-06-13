@@ -40,6 +40,17 @@
 
   header { text-align: center; margin-bottom: 8px; }
 
+  .brand-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    opacity: 0.85;
+    margin-bottom: 10px;
+  }
+
   header h1 {
     font-size: 30px;
     font-weight: 800;
@@ -395,6 +406,23 @@
   .glossary-section h2 { font-size: 22px; margin: 0 0 6px; }
   .final-test-section h2 { font-size: 22px; }
 
+  .section-kicker {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  .intro-test {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+  }
+
   .section-intro {
     color: var(--text-dim);
     font-size: 14px;
@@ -435,9 +463,46 @@
     opacity: 0.75;
   }
 
+  .footer-brand {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    opacity: 0.6;
+    margin-bottom: 8px;
+  }
+
   @media (max-width: 600px) {
+    .container { padding: 20px 14px 50px; }
     header h1 { font-size: 24px; }
     .chapter-header h2 { font-size: 19px; }
+    .chapter-header { gap: 10px; }
+
+    .course-nav { padding: 10px 10px; }
+    .nav-links {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      justify-content: flex-start;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-link { font-size: 11.5px; padding: 6px 11px; }
+
+    .intro-test { padding: 16px; }
+    .quiz-box { padding: 14px; }
+    .quiz-meta { font-size: 11px; }
+    .quiz-scenario { font-size: 13px; padding: 12px; }
+    .quiz-option { font-size: 13px; padding: 11px 12px; }
+    .btn { padding: 10px 18px; font-size: 13px; }
+
+    .theory-card-header { padding: 12px 14px; }
+    .theory-card-header h3 { font-size: 14px; }
+    .example-box { padding: 14px; }
+
+    .glossary-grid { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -445,6 +510,7 @@
 <div class="container">
 
   <header>
+    <div class="brand-tag">Ascetism</div>
     <h1>Инвестор с нуля</h1>
     <p class="subtitle">Шесть глав, которые помогут разобраться в акциях, рынке, рисках и собственной голове — с примерами и квизами.</p>
     <p class="disclaimer">Материал носит исключительно образовательный характер и не является индивидуальной инвестиционной рекомендацией.</p>
@@ -456,6 +522,13 @@
     <div class="nav-links" id="nav-links"></div>
   </nav>
 
+  <section class="final-test-section intro-test" id="final-test">
+    <div class="section-kicker">Начните здесь</div>
+    <h2>Проверьте свои знания</h2>
+    <p class="section-intro">Пройдите этот тест прямо сейчас — без подготовки. Он покажет, какие темы вы уже знаете, а какие стоит внимательно изучить в главах ниже. После прохождения курса можно пройти его повторно и сравнить результат.</p>
+    <div class="quiz-box" id="final-test-box"></div>
+  </section>
+
   <main id="chapters-container"></main>
 
   <section class="glossary-section" id="glossary">
@@ -464,13 +537,8 @@
     <div class="glossary-grid" id="glossary-list"></div>
   </section>
 
-  <section class="final-test-section" id="final-test">
-    <h2>Финальный тест</h2>
-    <p class="section-intro">Вопросы по всем главам вперемешку — проверь, как уложился весь материал курса.</p>
-    <div class="quiz-box" id="final-test-box"></div>
-  </section>
-
   <footer>
+    <div class="footer-brand">Ascetism</div>
     Материал носит исключительно образовательный характер и не является индивидуальной инвестиционной рекомендацией. Перед принятием инвестиционных решений проконсультируйтесь с лицензированным финансовым специалистом.
   </footer>
 
@@ -1024,18 +1092,17 @@
   // ---------------------------------------------------------------
   function renderNav() {
     const links = document.getElementById('nav-links');
+    const testDone = !!progress.finalTest;
+    const testLink = `<a class="nav-link ${testDone ? 'done' : ''}" href="#final-test">${testDone ? '✓ ' : ''}Тест</a>`;
+
     const chapterLinks = chapters.map(ch => {
       const done = !!(progress.chapters[ch.id] && progress.chapters[ch.id].done);
       return `<a class="nav-link ${done ? 'done' : ''}" href="#${ch.id}">${done ? '✓ ' : ''}${ch.number}. ${ch.title}</a>`;
     }).join('');
 
-    const testDone = !!progress.finalTest;
-    const extraLinks = `
-      <a class="nav-link" href="#glossary">Глоссарий</a>
-      <a class="nav-link ${testDone ? 'done' : ''}" href="#final-test">${testDone ? '✓ ' : ''}Финальный тест</a>
-    `;
+    const glossaryLink = `<a class="nav-link" href="#glossary">Глоссарий</a>`;
 
-    links.innerHTML = chapterLinks + extraLinks;
+    links.innerHTML = testLink + chapterLinks + glossaryLink;
 
     const total = chapters.length + 1;
     const completed = chapters.filter(ch => progress.chapters[ch.id] && progress.chapters[ch.id].done).length + (progress.finalTest ? 1 : 0);
